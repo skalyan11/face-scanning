@@ -1,4 +1,5 @@
 !.gitignore
 data/
 .venv/
+/env/
 
