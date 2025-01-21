@@ -16,22 +16,25 @@ gpus = tf.config.experimental.list_physical_devices('GPU')
 for gpu in gpus:
     tf.config.experimental.set_memory_growth(gpu, True)
 
-augmentor = Compose([alb.RandomCrop(width=450, height=450), 
-                         alb.HorizontalFlip(p=0.5), 
-                         alb.RandomBrightnessContrast(p=0.2),
-                         alb.RandomGamma(p=0.2), 
-                         alb.RGBShift(p=0.2), 
-                         alb.VerticalFlip(p=0.5)], 
-                       bbox_params=alb.BboxParams(format='albumentations', 
-                                                  label_fields=['class_labels']))
+# Create augmentation without random cropping
+augmentor = Compose([
+    alb.HorizontalFlip(p=0.5)
+], bbox_params=alb.BboxParams(format='albumentations', label_fields=['class_labels']))
 
 
 
+### Validation checks ###
 
-
-
+'''
 IMAGE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', 'train', 'images')
 print(IMAGE_DIR)
+
+IMAGE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', 'test', 'images')
+print(IMAGE_DIR)
+
+IMAGE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', 'val', 'images')
+print(IMAGE_DIR)
+
 
 # Verify directory exists
 if not os.path.exists(IMAGE_DIR):
@@ -42,27 +45,29 @@ images = [os.path.join(IMAGE_DIR, f) for f in os.listdir(IMAGE_DIR) if f.endswit
 print(images)
 
 
+JSON_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', 'val', 'labels')
+jsons = [os.path.join(JSON_DIR, f) for f in os.listdir(JSON_DIR) if f.endswith('.json')]
+print(jsons)
 
 '''
-#load the training data
+#load the data
 for partition in ['train','test','val']: 
     for image in os.listdir(os.path.join('data', partition, 'images')):
-        img = cv2.imread(os.path.join('data', partition, 'images', image))
-
-        coords = [0,0,0.00001,0.00001]
-        label_path = os.path.join('data', partition, 'labels', f'{image.split(".")[0]}.json')
+        img_path = os.path.join('data', partition, 'images', image)
+        img = cv2.imread(img_path)
+        height, width = img.shape[:2]  # Get actual image dimensions
+        label_path = os.path.join('data', partition, 'labels', image.split('.')[0] + '.json')
         if os.path.exists(label_path):
             with open(label_path, 'r') as f:
                 label = json.load(f)
-
-            coords[0] = label['shapes'][0]['points'][0][0]
-            coords[1] = label['shapes'][0]['points'][0][1]
-            coords[2] = label['shapes'][0]['points'][1][0]
-            coords[3] = label['shapes'][0]['points'][1][1]
-            coords = list(np.divide(coords, [640,480,640,480]))
-
+        else:
+            continue
+        coords = [point for shape in label['shapes'] for point in shape['points']]
+        x_min, y_min, x_max, y_max = coords[0][0], coords[0][1], coords[1][0], coords[1][1]
+        
+        coords = [x_min / label['imageWidth'], y_min / label['imageHeight'], x_max / label['imageWidth'], y_max / label['imageHeight']]
         try: 
-            for x in range(60):
+            for x in range(3):
                 augmented = augmentor(image=img, bboxes=[coords], class_labels=['face'])
                 cv2.imwrite(os.path.join('aug_data', partition, 'images', f'{image.split(".")[0]}.{x}.jpg'), augmented['image'])
 
@@ -86,4 +91,3 @@ for partition in ['train','test','val']:
 
         except Exception as e:
             print(e)
-'''
