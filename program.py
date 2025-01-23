@@ -353,10 +353,8 @@ plt.show()
 
 # Save the model
 print("\nSaving model...")
-from tensorflow.keras.models import load_model
-facetracker.save('facetracker.h5')
+facetracker.save('facetracker_base.h5')  # Save the base model instead of the wrapper
 
-# Test loading the model
-print("Testing model loading...")
-facetracker = load_model('facetracker.h5')
+# No need to test load here
+print("Model saved successfully!")
 

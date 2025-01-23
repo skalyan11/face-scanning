@@ -3,3 +3,4 @@ data/
 .venv/
 /env/
 /aug_data/
+logs/facetracker
