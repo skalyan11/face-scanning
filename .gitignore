@@ -1,6 +1,55 @@
-!.gitignore
+# Project specific
 data/
 .venv/
 /env/
 /aug_data/
-logs/facetracker
+logs/
+*.h5
+training_history.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS specific
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Ignore TensorFlow library
+.venv/lib/python3.11/site-packages/tensorflow/libtensorflow_cc.2.dylib
+
+# Ignore best model weights
+best_model.weights.h5
+
+# Ignore specific Git object
+.git/objects/39/bc9f950d00fec86ef6a1fb28635ab1f3d7f909
